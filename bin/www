@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+/* Sets up the environment variables from your .env file*/
+require('dotenv').config();
+
 /**
  * Module dependencies.
  */
@@ -88,5 +91,5 @@ function onListening() {
     : 'port ' + addr.port;
 
   console.log('Listening on ' + bind);
-  
+
 }
