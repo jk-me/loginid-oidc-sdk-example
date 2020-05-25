@@ -3,6 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const passport = require('passport')
+const OAuth2Strategy = require('passport-oauth2').Strategy
+const base64url = require('base64url')
+const cookieSession = require('cookie-session')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -18,6 +22,57 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieSession({
+    name: 'tuto-session',
+    keys: ['key1', 'key2']
+  }))
+
+passport.use(new OAuth2Strategy(
+    {
+        clientID: process.env.LOGINID_CLIENT_ID, // The client ID
+        clientSecret: process.env.LOGINID_CLIENT_SECRET, // The shared secret, but keep in config!
+        callbackURL: `https://localhost:3000/callback`,
+        authorizationURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/auth`,
+        tokenURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/token`,
+        // scope: `https://api.loginid.io/pii/user/name.read`,
+        //         https://api.loginid.io/pii/user/email.read`,
+        state: base64url(JSON.stringify({blah: 'This is a test value'}))
+    },
+    function(accessToken, refreshToken, profile, cb) {
+        console.log("Access token is: ", accessToken);
+        // console.log(util.inspect(accessToken, false, null));
+
+        if (profile) {
+            user = profile;
+            return cb(null, user);
+        } else {
+            return cb(null, false);
+        }
+    }
+));
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, user);
+});
+
+app.get('/fail', (req, res) => res.send("Failed"))
+app.get('/good', (req, res) => res.send("Success"))
+
+
+app.get('/login', passport.authenticate('oauth2'));
+
+app.get('/callback',
+    passport.authenticate('oauth2', { failureRedirect: '/fail' }),
+    function(req, res) {
+        // Before this code, the strategy's callback is called
+        console.log("Returning home...");
+        res.redirect('/good');
+    }
+);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
