@@ -22,20 +22,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(cookieSession({
     name: 'tuto-session',
     keys: ['key1', 'key2']
   }))
+
+
 
 passport.use(new OAuth2Strategy(
     {
         clientID: process.env.LOGINID_CLIENT_ID, // The client ID
         clientSecret: process.env.LOGINID_CLIENT_SECRET, // The shared secret, but keep in config!
         callbackURL: `https://localhost:3000/callback`,
-        authorizationURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/auth`,
-        tokenURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/token`,
-        // scope: `https://api.loginid.io/pii/user/name.read`,
-        //         https://api.loginid.io/pii/user/email.read`,
+        authorizationURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/auth`,
+        tokenURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/token`,
+        scope: `openid`,
         state: base64url(JSON.stringify({blah: 'This is a test value'}))
     },
     function(accessToken, refreshToken, profile, cb) {
@@ -60,7 +63,7 @@ passport.deserializeUser(function(user, done) {
 });
 
 app.get('/fail', (req, res) => res.send("Failed"))
-app.get('/good', (req, res) => res.send("Success"))
+app.get('/good', (req, res) => res.send(`Success user: ${req.user}`))
 
 
 app.get('/login', passport.authenticate('oauth2'));
