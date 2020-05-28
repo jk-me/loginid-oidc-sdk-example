@@ -7,6 +7,7 @@ const passport = require('passport')
 const OAuth2Strategy = require('passport-oauth2').Strategy
 const base64url = require('base64url')
 const cookieSession = require('cookie-session')
+const util = require('util');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -36,14 +37,15 @@ passport.use(new OAuth2Strategy(
         clientID: process.env.LOGINID_CLIENT_ID, // The client ID
         clientSecret: process.env.LOGINID_CLIENT_SECRET, // The shared secret, but keep in config!
         callbackURL: `https://localhost:3000/callback`,
-        authorizationURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/auth`,
-        tokenURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/token`,
+        authorizationURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/auth`,
+        tokenURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/token`,
         scope: `openid`,
         state: base64url(JSON.stringify({blah: 'This is a test value'}))
     },
     function(accessToken, refreshToken, profile, cb) {
         console.log("Access token is: ", accessToken);
-        // console.log(util.inspect(accessToken, false, null));
+        console.log(util.inspect(accessToken, false, null));
+        console.log('refresh', refreshToken, 'profile', profile)
 
         if (profile) {
             user = profile;
@@ -55,10 +57,12 @@ passport.use(new OAuth2Strategy(
 ));
 
 passport.serializeUser(function(user, done) {
+  console.log('serializing', user)
     done(null, user);
 });
 
 passport.deserializeUser(function(user, done) {
+    console.log('deserializing', user)
     done(null, user);
 });
 
@@ -72,6 +76,7 @@ app.get('/callback',
     passport.authenticate('oauth2', { failureRedirect: '/fail' }),
     function(req, res) {
         // Before this code, the strategy's callback is called
+        console.log('user', req.user)
         console.log("Returning home...");
         res.redirect('/good');
     }
