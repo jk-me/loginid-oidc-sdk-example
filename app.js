@@ -76,7 +76,7 @@ const isLoggedIn = (req, res, next) => {
 }
 
 app.get('/fail', (req, res) => res.send("Failed"))
-app.get('/good', isLoggedIn, (req, res) => res.send(`Success user: ${req.user}`))
+app.get('/dashboard', isLoggedIn, (req, res) => res.send(`Success user: ${req.user}`))
 
 
 app.get('/login', passport.authenticate('oauth2'));
@@ -87,7 +87,7 @@ app.get('/callback',
         // Before this code, the strategy's callback is called
         console.log('user', req.user)
         console.log("Returning home...");
-        res.redirect('/good');
+        res.redirect('/dashboard');
     }
 );
 
