@@ -66,8 +66,17 @@ passport.deserializeUser(function(user, done) {
     done(null, user);
 });
 
+// Auth middleware that checks if the user is logged in
+const isLoggedIn = (req, res, next) => {
+    if (req.user) {
+        next();
+    } else {
+        res.sendStatus(401);
+    }
+}
+
 app.get('/fail', (req, res) => res.send("Failed"))
-app.get('/good', (req, res) => res.send(`Success user: ${req.user}`))
+app.get('/good', isLoggedIn, (req, res) => res.send(`Success user: ${req.user}`))
 
 
 app.get('/login', passport.authenticate('oauth2'));
