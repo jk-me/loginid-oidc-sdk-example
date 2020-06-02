@@ -71,12 +71,16 @@ const isLoggedIn = (req, res, next) => {
     if (req.user) {
         next();
     } else {
-        res.sendStatus(401);
+        res.status(401).render('error',
+          {error: {status: '401', stack: 'You must sign in to do that!'} , message: "Unauthorized"}
+        );
     }
 }
 
 app.get('/fail', (req, res) => res.send("Failed"))
-app.get('/dashboard', isLoggedIn, (req, res) => res.send(`Success user: ${req.user}`))
+app.get('/dashboard', isLoggedIn, (req, res) => {
+  res.status(200).render('dashboard', {user: req.user})
+})
 
 
 app.get('/login', passport.authenticate('oauth2'));
