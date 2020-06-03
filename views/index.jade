@@ -1,6 +1,9 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  a(href='/login') Login 
+  .jumbotron.m-3
+    h1.display-4= title
+    p.my-4 Welcome to #{title}
+    hr.my-4
+    form(action="/login")
+      button.btn.btn-outline-primary(type="Submit") Sign In with LoginID
