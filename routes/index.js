@@ -6,10 +6,4 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Your Web App' });
 });
 
-/*
-  /login route ->
-
-  /callback
-*/
-
 module.exports = router;

@@ -30,15 +30,13 @@ app.use(cookieSession({
     keys: ['key1', 'key2']
   }))
 
-
-
 passport.use(new OAuth2Strategy(
     {
         clientID: process.env.LOGINID_CLIENT_ID, // The client ID
         clientSecret: process.env.LOGINID_CLIENT_SECRET, // The shared secret, but keep in config!
         callbackURL: `https://localhost:3000/callback`,
-        authorizationURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/auth`,
-        tokenURL: `https://sandbox-apse1.api.loginid.io/hydra/oauth2/token`,
+        authorizationURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/auth`,
+        tokenURL: `https://sandbox.api.auth.asliri.id/hydra/oauth2/token`,
         scope: `openid`,
         state: base64url(JSON.stringify({blah: 'This is a test value'}))
     },
@@ -77,11 +75,12 @@ const isLoggedIn = (req, res, next) => {
     }
 }
 
-app.get('/fail', (req, res) => res.send("Failed"))
-app.get('/dashboard', isLoggedIn, (req, res) => {
+router.get('/fail', (req, res) => res.render('error',
+  {error: {stack: 'There was an error in authenticating.'} , message: "Authentication Failed"}))
+
+router.get('/dashboard', isLoggedIn, (req, res) => {
   res.status(200).render('dashboard', {user: req.user})
 })
-
 
 app.get('/login', passport.authenticate('oauth2'));
 
@@ -94,6 +93,7 @@ app.get('/callback',
         res.redirect('/dashboard');
     }
 );
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
