@@ -75,10 +75,10 @@ const isLoggedIn = (req, res, next) => {
     }
 }
 
-router.get('/fail', (req, res) => res.render('error',
+app.get('/fail', (req, res) => res.render('error',
   {error: {stack: 'There was an error in authenticating.'} , message: "Authentication Failed"}))
 
-router.get('/dashboard', isLoggedIn, (req, res) => {
+app.get('/dashboard', isLoggedIn, (req, res) => {
   res.status(200).render('dashboard', {user: req.user})
 })
 
